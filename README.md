@@ -11,12 +11,29 @@ This repository contains the official PyTorch implementation for our final proje
 
 Inferring continuous lens mass parameters from noisy telescope observations is a fundamentally ill-posed inverse problem plagued by complex parameter degeneracies (e.g., the mass-sheet degeneracy). To resolve this, we implemented a **Conditional Invertible Neural Network (cINN)** based on the RealNVP architecture, conditioned on spatial features extracted by a custom 4-layer Convolutional Neural Network (CNN). 
 
-Our pipeline bypasses the computational bottlenecks of traditional MCMC and optimization algorithms, delivering mathematically exact full Bayesian posterior distributions $p(\theta|x_{obs})$ in fractions of a second, while autonomously detecting Out-of-Distribution (OOD) astronomical anomalies.
+Once trained, the network returns samples from an approximate posterior $p(\theta|x_{obs})$ in fractions of a second per observation, without re-running an optimizer or MCMC chain for each new image. We also study whether the latent space can flag Out-of-Distribution (OOD) observations.
 
-### ✨ Key Scientific Highlights
-- **Amortized Inference:** Achieves a ~26x absolute speedup (and orders of magnitude effective speedup for posterior sampling) compared to traditional Nelder-Mead optimization.
-- **Exact Posterior Calibration:** Statistically validated using empirical coverage curves and rigorous Simulation-Based Calibration (SBC) rank histograms.
-- **Robust Anomaly Detection:** Leverages exact latent space $\chi^2_3$ statistics to achieve a perfect AUC of 1.000 against extreme noise, PSF degradation, and high-mass extrapolations.
+### ✨ Key Points
+- **Calibrated Posteriors:** On 1,000 independent test simulations, the empirical coverage of all three parameters ($\theta_E$, $s_x$, $s_y$) follows the diagonal from 5% to 95% nominal coverage, and the SBC rank histograms (100 test samples) show no systematic over- or under-dispersion.
+- **Amortized Inference:** Drawing 500 posterior samples with the cINN takes 0.017 s, about 7× faster than a single Nelder-Mead point estimate on the same image (0.12 s); the ratio varies between runs (7–10×). The Nelder-Mead run starts close to the true parameters, so this is an indicative rather than a like-for-like comparison.
+- **Latent-Space OOD Scores:** Observations are scored by $\|z\|^2$, which follows $\chi^2_3$ for in-distribution data under a calibrated model. Each OOD set changes a single factor:
+
+  | OOD set | AUC |
+  |---|---|
+  | 3× background noise | 0.990 |
+  | PSF FWHM doubled (0.16″ → 0.32″) | 0.885 |
+  | Einstein radius beyond the prior ($\theta_E \in [2.2, 2.5]$) | 1.000 |
+
+  At the 95% $\chi^2_3$ threshold, the fraction of flagged observations rises from 7.9% at the nominal noise level (5% expected) to 79.7%, 97.1%, 99.1%, and 99.8% at 2×–5× noise.
+
+### 🔧 Fix History
+*Post-submission revision (v1.1) by Zhikai Zhang ([@Qck-KK](https://github.com/Qck-KK)). The submitted version is tagged `v1.0-submitted`.*
+
+The first version of the cINN clamped each coupling scale with `tanh`, which bounds the total log-determinant at 9 (3 of the 6 blocks transform 1 dimension and 3 transform 2). Training converged to NLL ≈ −8.96, right at this bound, and the posteriors were much too wide: empirical coverage was already ~40% at 5% nominal, and SBC ranks were concentrated in the middle. The current version standardizes $\theta$ with the prior mean and standard deviation and uses the soft clamp `2·tanh(s/2)`; training now reaches NLL ≈ −16.7 and the posteriors are calibrated. In the same revision, the noise and PSF OOD sets were restricted to the training prior for $\theta_E$ (previously they also shifted $\theta_E$, which made AUC = 1.000 trivial), and a noise-sweep plot that had been generated from random $\chi^2$ samples was replaced with the model's actual scores.
+
+### ⚠️ Known Limitations
+- **The OOD score uses the true parameters.** $\|z\|^2$ is computed at the true $\theta$, which is only known in simulation. It is a diagnostic of the learned posterior, not a detector that can be applied directly to real observations.
+- **Fixed lens ellipticity in resimulation.** Ellipticity is sampled during training but not stored in the dataset, so the posterior predictive check and the Nelder-Mead baseline use a fixed ellipticity of (0.1, 0.1).
 
 ---
 
@@ -39,7 +56,7 @@ pip install -r requirements.txt
 | File | Description |
 |---|---|
 | `Strong_Lensing_Simulator.ipynb` | Full pipeline: simulator, data generation, cINN training, and evaluation |
-| `FinalReport.pdf` | Final project report |
+| `FinalReport.pdf` | Final project report as submitted. It describes the first version of the model, so its calibration and OOD results (including AUC = 1.000 on all sets) are superseded by the Fix History above. |
 | `requirements.txt` | Python dependencies |
 
 ---

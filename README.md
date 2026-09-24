@@ -3,6 +3,7 @@
 **Course:** Generative Neural Networks for the Sciences (Winter Semester 2025/26)  
 **Institution:** Heidelberg University  
 **Authors:** Zhiheng Lin ([@Zhiheng-SC](https://github.com/Zhiheng-SC)), Zhikai Zhang ([@Qck-KK](https://github.com/Qck-KK)), Yimin Yan ([@Yimin-Yan](https://github.com/Yimin-Yan))  
+**Post-submission revision (v1.1):** Zhikai Zhang ([@Qck-KK](https://github.com/Qck-KK)): diagnosed and fixed the posterior calibration and OOD evaluation issues (see [Fix History](#-fix-history))  
 
 ---
 

@@ -38,6 +38,19 @@ The first version of the cINN clamped each coupling scale with `tanh`, which bou
 
 ---
 
+## 👥 Contributions
+
+**Original project (v1.0, course submission)**
+- **Zhiheng Lin** ([@Zhiheng-SC](https://github.com/Zhiheng-SC)), Data & Physics: `lenstronomy` simulation pipeline, sub-grid supersampling, generation of the 50,000-sample training set, and design of the OOD test sets.
+- **Zhikai Zhang** ([@Qck-KK](https://github.com/Qck-KK)), Architecture & Training: CNN summary network, cINN affine coupling blocks, HDF5 data loader, and end-to-end joint training.
+- **Yimin Yan** ([@Yimin-Yan](https://github.com/Yimin-Yan)), Evaluation & Statistics: coverage and SBC calibration tests, corner plots, resimulation variance maps, latent-space $\chi^2$ OOD detection, and the Nelder-Mead baseline.
+- All three members wrote the report together.
+
+**Post-submission revision (v1.1)**
+- **Zhikai Zhang**: found that the `tanh` clamp capped the log-determinant and made the posteriors too wide, that the noise and PSF OOD sets also shifted $\theta_E$, and that the noise-sweep plot did not use the model. Fixed all three, retrained the model, and re-ran the evaluation (see [Fix History](#-fix-history)).
+
+---
+
 ## ⚙️ Dependencies & Installation
 The codebase is built with Python 3.9+ and PyTorch. The physical forward simulator relies on `lenstronomy`. 
 
@@ -57,7 +70,7 @@ pip install -r requirements.txt
 | File | Description |
 |---|---|
 | `Strong_Lensing_Simulator.ipynb` | Full pipeline: simulator, data generation, cINN training, and evaluation |
-| `FinalReport.pdf` | Final project report as submitted. It describes the first version of the model, so its calibration and OOD results (including AUC = 1.000 on all sets) are superseded by the Fix History above. |
+| `FinalReport_v1.0_submitted.pdf` | Final project report as submitted (matriculation numbers removed). It describes the first version of the model, so its calibration and OOD results (including AUC = 1.000 on all sets) are superseded by the Fix History above. |
 | `requirements.txt` | Python dependencies |
 
 ---

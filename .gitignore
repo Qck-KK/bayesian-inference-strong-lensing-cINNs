@@ -1,0 +1,23 @@
+# Generated datasets (reproducible via the notebook; training set exceeds GitHub's 100 MB limit)
+*.h5
+*.pth
+training_validation_loss.png
+# Course materials and reference papers (third-party copyright)
+final_project.pdf
+project-ideas.pdf
+参考文献.pdf
+
+# Redundant exports
+Strong_Lensing_Simulator.html
+structure.txt
+
+# Python / Jupyter
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
